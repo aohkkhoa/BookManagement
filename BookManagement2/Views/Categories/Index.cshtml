@@ -1,0 +1,134 @@
+﻿@model X.PagedList.IPagedList<BookManagement2.Models.Entities.Category>
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+@{
+    var check = 4;
+
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                CategoryName
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.categoryName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.categoryId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.categoryId">Details</a> |
+                    @*<a asp-action="Delete" asp-route-id="@item.categoryId" >Delete</a> *@
+                    <a class="btn btn-danger" data-toggle="modal" data-target="#exampleModal" data-whatever="@item.categoryId" onclick="confirmDelete(@item.categoryId)">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+@Html.PagedListPager( Model, page => Url.Action("Index", new { page }),  new PagedListRenderOptions {
+        LiElementClasses = new string[] { "page-item" },
+        PageClasses = new string[] { "page-link" }
+})
+
+@*<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="1">Open modal for 1</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="2">Open modal for 2</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="3">Open modal for 3</button>
+
+*@
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                @if (check == 1)
+                {
+                    <h5 class="modal-title" id="exampleModalLabel">There are products that exist in this category, do you want to see it ?</h5>
+                }
+                else
+                {
+                    <h5 class="modal-title" id="exampleModalLabel">Do you want to delete this categor ?</h5>
+                }
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">Recipient:</label>
+                        <input type="text" class="form-control" id="recipient-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Message:</label>
+                        <textarea class="form-control" id="message-text"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                @*<a class="btn btn-danger" asp-action="Delete" asp-route-id="ViewBag.idDel">Delete</a>*@
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+        $('#exampleModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var recipient = button.data('whatever') // Extract info from data-* attributes
+            // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+            var modal = $(this)
+            //modal.find('.modal-title').text('New message to ' + recipient)
+            modal.find('.modal-body input').val(recipient)
+        })
+        function confirmDelete(catId) {
+            $.ajax({
+                url: "/Categories/GetCategory",
+                dataType: "json",
+                type: "GET",
+                contentType: 'application/json; charset=utf-8',
+                data: { id: catId },
+                success: function (data) {
+                    var ActionU = '@(Url.Action("Delete1", "Categories"))';
+                    var append = '<a class="btn btn-warning" id="del" href=' + ActionU + "/" + catId + ">Goto</a>"
+                    if (data == 1) {
+                        $("#exampleModalLabel").text("There are products that exist in this category, do you want to see it ?");
+                        console.log(append)
+                        $("#del").remove()
+                        $("#modal-footer").append(append);
+
+                        console.log(data)
+                    } else {
+                        console.log(data)
+                        $("#exampleModalLabel").text("do you want to delete it?")
+
+                    }
+                }
+            });
+        }
+
+
+    </script>
+}

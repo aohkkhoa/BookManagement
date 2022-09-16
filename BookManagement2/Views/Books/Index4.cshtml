@@ -1,0 +1,44 @@
+﻿
+<div class="container-fluid">
+    <form id="formSearchInput">
+        <div class="row" style="margin-top:5px">
+            <div class="col-md-12 ">
+                <div class="input-group">
+                    <input name="searchValue" type="text" class="form-control" placeholder="Nhập tên cần tìm..." value="">
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="glyphicon glyphicon-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div id="listEmployees" class="container-fluid">
+</div>
+@section scripts {
+    <script>
+        function getEmployees(page) {
+            var searchCondition = $("#formSearchInput").serializeArray();
+            searchCondition.push({ name: "page", value: page });
+            $.ajax({
+                url: "/books/Pagination",
+                type: "POST",
+                data: searchCondition,
+                success: function (data) {
+                    $("#listEmployees").empty();
+                    $("#listEmployees").html(data);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            getEmployees(1);
+            $("#formSearchInput").submit(function (e) {
+                e.preventDefault();
+                getEmployees(1);
+            });
+        });
+    </script>
+}

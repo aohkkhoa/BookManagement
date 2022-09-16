@@ -1,0 +1,73 @@
+﻿@model IEnumerable<BookManagement2.Models.DTO.BookDetail>
+
+@{
+    ViewData["Title"] = "Index";
+}
+@if (ViewBag.Checked == 0)
+{
+    <h1>Index Get Book By Category Id</h1>
+}
+else 
+{
+    <h1>Index Book Detail</h1>
+}
+
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                *
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.categoryName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 0;
+            var pc = ViewBag.pageCurrent;
+            var ps = ViewBag.pageSize;
+
+        }
+@foreach (var item in Model) {
+           
+            <tr>
+                <td>
+                    @((pc * ps) - ps + i++)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.categoryName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.bookDetailId">Edit</a> |
+                    <a id="ad" asp-action="Details" asp-route-id="@item.bookDetailId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.bookDetailId">Delete</a>
+                </td>
+            </tr>
+}
+    </tbody>
+</table>
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        @for (int page = 1; page <= ViewBag.rowCount; page++)
+        {
+            
+                <li class="page-item "><a class="page-link" href="@Url.Action("pagination", "Books", new { page = page })">@(page)</a></li>
+            
+        }
+    </ul>
+</nav>
+
+

@@ -1,0 +1,26 @@
+﻿<div id="listEmployees" class="container-fluid">
+</div>
+@section Scripts {
+    <script>
+        function getEmployees(page) {
+            var searchCondition = $("#formSearchInput").serializeArray();
+            searchCondition.push({ name: "page", value: page });
+            $.ajax({
+                url: "/books/Pagination",
+                type: "POST",
+                data: searchCondition,
+                success: function (data) {
+                    $("#listEmployees").empty();
+                    $("#listEmployees").html(data);
+                }
+            });
+        }
+        $(document).ready(function () {
+            getEmployees(1);
+            $("#formSearchInput").submit(function (e) {
+                e.preventDefault();
+                getEmployees(1);
+            });
+        });
+    </script>
+}
