@@ -19,10 +19,11 @@ namespace BookManagement2.Controllers
         // GET: Categories
         public IActionResult Index(int? page)
         {
-            int pageSize = 1;
+            int pageSize = 2;
             int pageNumber = (page ?? 1);
             var category = from c in _context.Categories
                            select c;
+            category = category.OrderByDescending(s => s.categoryId);
             return _context.Categories != null ? 
                           View( category.ToPagedList(pageNumber, pageSize)) :
                           Problem("Entity set 'BookDBContext.Categories'  is null.");
@@ -132,12 +133,8 @@ namespace BookManagement2.Controllers
                             }).ToList();
             if (category.Count != 0)
             {
-                ViewData["check"] = 1;
-                ViewData["idDel"] = id;
                 return 1;
             }
-            ViewData["idDel"] = 0;
-            ViewData["check"] = 0;
             return 0;
         }
 
@@ -152,19 +149,26 @@ namespace BookManagement2.Controllers
 
             var category = await _context.Categories
                 .FirstOrDefaultAsync(m => m.categoryId == id);
-            var books = await _context.Books
+            /*var books = await _context.Books
                 .FirstOrDefaultAsync(m => m.categoryId == id);
             if(books != null)
             {
-               // ViewData["CategoryId"] = id;
+                ViewData["CategoryId"] = id;
                 return View("Delete1", category);
-            }
+            }*/
             if (category == null)
             {
                 return NotFound();
             }
+            var category1 = await _context.Categories.FindAsync(id);
+            if (category1 != null)
+            {
+                _context.Categories.Remove(category);
+            }
 
-            return View(category);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+            //return View(category);
         }
         
         public async Task<IActionResult> Delete1(int id)

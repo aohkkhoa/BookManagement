@@ -2,8 +2,11 @@ using BookManagement2;
 using BookManagement2.Models.EF;
 using BookManagement2.Repository;
 using BookManagement2.Repository.SQLSERVER;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using System.Net;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +42,7 @@ x.TokenValidationParameters = new TokenValidationParameters
     ValidateAudience = false
 };
 });
-builder.Services.AddMvc();  
+builder.Services.AddMvc();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -66,6 +69,13 @@ app.Use(async (context, next) =>
     await next();
 });
 app.UseAuthentication();
+app.UseStatusCodePages(context => {
+    var response = context.HttpContext.Response;
+    if (response.StatusCode == (int)HttpStatusCode.Unauthorized ||
+        response.StatusCode == (int)HttpStatusCode.Forbidden)
+        response.Redirect("/Auth/Login");
+    return Task.CompletedTask;
+});
 app.UseAuthorization();
 
 app.MapControllerRoute(
